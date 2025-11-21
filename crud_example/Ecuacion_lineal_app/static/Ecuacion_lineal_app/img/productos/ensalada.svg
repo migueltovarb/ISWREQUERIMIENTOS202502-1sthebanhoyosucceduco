@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-label="Ensalada Isométrica">
+  <defs>
+    <linearGradient id="saladG" x1="0" x2="1">
+      <stop offset="0%" stop-color="#CFF5C7"/>
+      <stop offset="100%" stop-color="#7BC85A"/>
+    </linearGradient>
+    <filter id="sS" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="100%" height="100%" fill="#f8fff9"/>
+
+  <g transform="translate(140,70)">
+    <g filter="url(#sS)">
+      <!-- Bowl base (isometric ellipse) -->
+      <ellipse cx="160" cy="220" rx="150" ry="40" fill="#eaf8ed"/>
+
+      <!-- Salad layers skewed to simulate depth -->
+      <g transform="skewX(-20)">
+        <path d="M30 110 q80 -90 220 0 q-40 30 -220 0" fill="url(#saladG)"/>
+        <path d="M60 130 q60 -60 160 0" fill="#5da94a" opacity="0.6"/>
+      </g>
+    </g>
+
+    <g transform="translate(0,270)">
+      <text x="0" y="0" font-family="Segoe UI, Arial" font-size="20" fill="#2e7d32">Ensalada</text>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+
+{% block title %}Métodos de pago - Cafetería{% endblock %}
+
+{% block extra_css %}
+<style>
+    .metodo-pago-card {
+        border: 2px solid #e0e0e0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+    
+    .metodo-pago-card:hover {
+        border-color: var(--primary-color);
+        background-color: rgba(111, 78, 55, 0.05);
+        transform: translateX(5px);
+    }
+    
+    .metodo-pago-radio:checked + .metodo-pago-card {
+        border-color: var(--primary-color);
+        background-color: rgba(111, 78, 55, 0.1);
+        box-shadow: 0 4px 12px rgba(111, 78, 55, 0.2);
+    }
+
+    /* Clase alternativa para marcar visualmente la tarjeta seleccionada cuando JS la controla */
+    .metodo-pago-card.selected {
+        border-color: var(--primary-color) !important;
+        background-color: rgba(111, 78, 55, 0.1) !important;
+        box-shadow: 0 6px 16px rgba(111, 78, 55, 0.22) !important;
+    }
+    
+    .metodo-pago-radio {
+        display: none;
+    }
+    
+    .qr-code {
+        max-width: 250px;
+        margin: 0 auto;
+        padding: 1rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-lg">
+            <div class="card-header text-center py-4" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-bg) 100%); color: white;">
+                <h3><i class="bi bi-credit-card"></i> Métodos de pago</h3>
+            </div>
+            <div class="card-body p-4">
+                <h5 class="mb-4 text-center">Selecciona tu método de pago</h5>
+                <p class="text-center text-muted mb-4">Por favor elige el método con el que deseas realizar tu compra.</p>
+                
+                <form method="post" id="pagoForm">
+                    {% csrf_token %}
+                    
+                          <!-- Efectivo -->
+                          <label class="w-100">
+                           <input type="radio" 
+                               name="metodo_pago" 
+                               value="efectivo" 
+                               class="metodo-pago-radio" 
+                               required>
+                           <div class="metodo-pago-card">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3">
+                                    <i class="bi bi-cash-coin" style="font-size: 2.5rem; color: var(--primary-color);"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-2">
+                                        <i class="bi bi-circle me-2"></i>
+                                        Efectivo
+                                    </h5>
+                                    <p class="text-muted small mb-0">
+                                        - Paga directamente al momento de recoger o recibir tu pedido.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                    
+                          <!-- Tarjeta débito o crédito -->
+                          <label class="w-100">
+                           <input type="radio" 
+                               name="metodo_pago" 
+                               value="tarjeta" 
+                               class="metodo-pago-radio">
+                           <div class="metodo-pago-card">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3">
+                                    <i class="bi bi-credit-card-2-front" style="font-size: 2.5rem; color: var(--primary-color);"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-2">
+                                        <i class="bi bi-circle me-2"></i>
+                                        Tarjeta débito o crédito
+                                    </h5>
+                                    <p class="text-muted small mb-0">
+                                        - Ingresa los datos de tu tarjeta en la pasarela de pago segura.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                    
+                          <!-- Pago digital -->
+                          <label class="w-100">
+                           <input type="radio" 
+                               name="metodo_pago" 
+                               value="digital" 
+                               class="metodo-pago-radio">
+                           <div class="metodo-pago-card">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3">
+                                    <i class="bi bi-phone" style="font-size: 2.5rem; color: var(--primary-color);"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-2">
+                                        <i class="bi bi-circle me-2"></i>
+                                        Pago digital (Nequi / Daviplata)
+                                    </h5>
+                                    <p class="text-muted small mb-3">
+                                        - Escanea el código QR o envía el pago al número 310-555-1234.
+                                    </p>
+                                    
+                                    <!-- QR Code -->
+                                    <div class="qr-code">
+                                        <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+                                            <!-- QR Code simplificado -->
+                                            <rect width="256" height="256" fill="white"/>
+                                            <rect x="20" y="20" width="60" height="60" fill="black"/>
+                                            <rect x="30" y="30" width="40" height="40" fill="white"/>
+                                            <rect x="40" y="40" width="20" height="20" fill="black"/>
+                                            
+                                            <rect x="176" y="20" width="60" height="60" fill="black"/>
+                                            <rect x="186" y="30" width="40" height="40" fill="white"/>
+                                            <rect x="196" y="40" width="20" height="20" fill="black"/>
+                                            
+                                            <rect x="20" y="176" width="60" height="60" fill="black"/>
+                                            <rect x="30" y="186" width="40" height="40" fill="white"/>
+                                            <rect x="40" y="196" width="20" height="20" fill="black"/>
+                                            
+                                            <!-- Patrón central -->
+                                            <rect x="100" y="100" width="56" height="56" fill="black"/>
+                                            <rect x="110" y="110" width="36" height="36" fill="white"/>
+                                            <rect x="120" y="120" width="16" height="16" fill="black"/>
+                                        </svg>
+                                        <p class="text-center mt-2 mb-0 small">
+                                            <strong>310-555-1234</strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            {{ form.errors }}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mt-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="h5 mb-0">Total a pagar:</span>
+                                    <span class="h3 mb-0 text-primary">${{ pedido.total|floatformat:0 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle-fill"></i> Confirmar pago
+                        </button>
+                        <a href="{% url 'recuento_pedido' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Volver
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Robust click-handling for payment method cards
+    document.addEventListener('DOMContentLoaded', function () {
+        const labels = Array.from(document.querySelectorAll('form#pagoForm label.w-100'));
+        if (!labels.length) return;
+
+        function clearSelected() {
+            document.querySelectorAll('.metodo-pago-card.selected').forEach(el => el.classList.remove('selected'));
+        }
+
+        labels.forEach(label => {
+            const radio = label.querySelector('input[type=radio].metodo-pago-radio');
+            const card = label.querySelector('.metodo-pago-card');
+            if (!radio || !card) return;
+
+            label.addEventListener('click', function (e) {
+                const tag = e.target.tagName.toLowerCase();
+                if (tag === 'a' || tag === 'button') return;
+
+                radio.checked = true;
+                clearSelected();
+                card.classList.add('selected');
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+
+            if (radio.checked) card.classList.add('selected');
+        });
+    });
+</script>
+{% endblock %}

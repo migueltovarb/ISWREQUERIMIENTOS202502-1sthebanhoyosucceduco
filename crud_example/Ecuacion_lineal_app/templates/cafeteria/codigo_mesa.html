@@ -1,0 +1,58 @@
+<!-- codigo_mesa.html -->
+{% extends 'base.html' %}
+
+{% block title %}Código de Mesa - Cafetería{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-lg">
+            <div class="card-header text-center py-4" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-bg) 100%); color: white;">
+                <h3><i class="bi bi-table"></i> Código de mesa</h3>
+            </div>
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <h5>Pedido para consumir en el lugar</h5>
+                    <p class="text-muted">Ingrese el código de su mesa:</p>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label text-center w-100">
+                            <strong>{{ form.codigo_mesa.label }}</strong>
+                        </label>
+                        <div class="d-flex justify-content-center">
+                            <input type="text" 
+                                   name="codigo_mesa" 
+                                   class="form-control form-control-lg text-center" 
+                                   placeholder="M___" 
+                                   pattern="M[0-9]{3}"
+                                   maxlength="4"
+                                   style="max-width: 200px; font-size: 2rem; letter-spacing: 0.3rem;"
+                                   required
+                                   autofocus>
+                        </div>
+                        {% if form.codigo_mesa.errors %}
+                            <div class="text-danger text-center small mt-2">{{ form.codigo_mesa.errors }}</div>
+                        {% endif %}
+                        <div class="text-center text-muted small mt-2">
+                            <i class="bi bi-info-circle"></i> Formato: M + 3 números (ej: M015)
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle"></i> Confirmar mesa
+                        </button>
+                        <a href="{% url 'tipo_pedido' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Volver
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

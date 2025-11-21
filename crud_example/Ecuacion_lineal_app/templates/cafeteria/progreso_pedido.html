@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+
+{% block title %}Progreso del Pedido - Cafetería{% endblock %}
+
+{% block extra_css %}
+<style>
+    .progreso-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .estado-item {
+        position: relative;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+        background: white;
+        border: 2px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+    
+    .estado-item.completado {
+        border-color: #28a745;
+        background-color: #d4edda;
+    }
+    
+    .estado-item.activo {
+        border-color: var(--accent-color);
+        background-color: #fff3cd;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+    }
+    
+    .estado-icono {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+    }
+    
+    .estado-icono.completado {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .estado-icono.activo {
+        background-color: var(--accent-color);
+        color: white;
+    }
+    
+    .estado-icono.pendiente {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    .tiempo-estimado {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-bg) 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="progreso-container">
+    <div class="card shadow-lg mb-4">
+        <div class="card-header text-center py-4" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-bg) 100%); color: white;">
+            <h3><i class="bi bi-truck"></i> PROGRESO DE TU PEDIDO</h3>
+        </div>
+        <div class="card-body p-4">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>Numero de pedido:</strong> {{ pedido.IDPedido|stringformat:"06d" }}</p>
+                    <p class="mb-1"><strong>Fecha:</strong> {{ pedido.fecha|date:"d/m/Y" }}</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-1"><strong>Cliente:</strong> {{ pedido.cliente.nombre }}</p>
+                    <p class="mb-1"><strong>Total:</strong> ${{ pedido.total|floatformat:0 }}</p>
+                </div>
+            </div>
+            
+            <div class="tiempo-estimado shadow">
+                <h5 class="mb-2">
+                    <i class="bi bi-clock"></i> Estado actual: 
+                    <span class="badge bg-light text-dark">{{ estado_actual }}</span>
+                </h5>
+                <p class="mb-0">Tiempo estimado: 8 minutos</p>
+            </div>
+
+            <!-- Contador para marcar como entregado (15s) -->
+            {% if pedido.estado != 'entregado' %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6><i class="bi bi-receipt"></i> Marcar pedido como entregado</h6>
+                        <p id="estado-pedido" class="mb-2">Estado: <strong>{{ estado_actual }}</strong></p>
+                        <div class="mb-2">
+                            <div class="progress" style="height: 18px;">
+                                <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <p>En <span id="countdown">15</span> segundos el pedido quedará marcado como <strong>Entregado</strong> y podrás calificarlo.</p>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Estados del pedido -->
+            <div class="estados-lista">
+                {% for estado in estados_progreso %}
+                    <div class="estado-item {% if estado.completado %}completado{% elif forloop.counter == forloop.parentloop.counter %}activo{% endif %}">
+                        <div class="d-flex align-items-center">
+                            <div class="estado-icono {% if estado.completado %}completado{% elif forloop.first %}activo{% else %}pendiente{% endif %}">
+                                {% if estado.completado %}
+                                    <i class="bi bi-check-circle-fill"></i>
+                                {% elif forloop.first and not estado.completado %}
+                                    <i class="bi bi-arrow-repeat"></i>
+                                {% else %}
+                                    <i class="bi bi-circle"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">
+                                    {% if estado.nombre == 'Pedido recibido' %}
+                                        <i class="bi bi-check-circle"></i> Pedido recibido
+                                    {% elif estado.nombre == 'En preparación' %}
+                                        <i class="bi bi-hourglass-split"></i> En preparación
+                                    {% elif estado.nombre == 'Listo para entregar' %}
+                                        <i class="bi bi-box-seam"></i> Listo para entregar
+                                    {% elif estado.nombre == 'Entregado' %}
+                                        <i class="bi bi-check-all"></i> Entregado
+                                    {% else %}
+                                        {{ estado.nombre }}
+                                    {% endif %}
+                                </h5>
+                                {% if estado.completado %}
+                                    <small class="text-success">
+                                        <i class="bi bi-check"></i> Completado
+                                    </small>
+                                {% elif forloop.first and not estado.completado %}
+                                    <small class="text-warning">
+                                        <i class="bi bi-arrow-repeat"></i> En proceso
+                                    </small>
+                                {% else %}
+                                    <small class="text-muted">Pendiente</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center">
+        <div class="d-flex gap-2 justify-content-center flex-wrap">
+            {% if pedido.estado == 'entregado' %}
+                <a href="{% url 'calificar_pedido' pedido.IDPedido %}" class="btn btn-accent btn-lg">
+                    <i class="bi bi-star"></i> Calificar Pedido
+                </a>
+            {% endif %}
+            
+            {% if pedido.estado in 'pendiente,confirmado' %}
+                <a href="{% url 'cancelar_pedido' pedido.IDPedido %}" class="btn btn-danger btn-lg">
+                    <i class="bi bi-x-circle"></i> Cancelar Pedido
+                </a>
+            {% endif %}
+            
+            <a href="{% url 'inicio_pedido' %}" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-house"></i> Ir al Inicio
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function(){
+        // Auto-refresh cada 30 segundos para actualizar el estado
+        // pero si existe el contador, lo manejamos aquí
+        const countdownElem = document.getElementById('countdown');
+        const progressBar = document.getElementById('progress-bar');
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        if (countdownElem) {
+            let segundos = 15;
+            const total = segundos;
+
+            const interval = setInterval(() => {
+                segundos -= 1;
+                if (segundos < 0) segundos = 0;
+                countdownElem.textContent = segundos;
+                const pct = Math.round(((total - segundos) / total) * 100);
+                if (progressBar) progressBar.style.width = pct + '%';
+
+                if (segundos === 0) {
+                    clearInterval(interval);
+                    fetch('{% url "marcar_entregado" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        body: JSON.stringify({})
+                    }).then(r => r.json())
+                      .then(data => {
+                          if (data.ok) {
+                              // Marcar visualmente todos los pasos como completados
+                              document.querySelectorAll('.estado-item').forEach(function(el){
+                                  el.classList.remove('activo');
+                                  el.classList.add('completado');
+                              });
+                              document.querySelectorAll('.estado-icono').forEach(function(ic){
+                                  ic.classList.remove('activo','pendiente');
+                                  ic.classList.add('completado');
+                                  ic.innerHTML = '<i class="bi bi-check-circle-fill"></i>';
+                              });
+                              // Actualizar textos cortos a 'Completado'
+                              document.querySelectorAll('.estado-item small').forEach(function(s){
+                                  s.className = 'text-success';
+                                  s.innerHTML = '<i class="bi bi-check"></i> Completado';
+                              });
+                              // Actualizar estado principal
+                              var estadoElem = document.getElementById('estado-pedido');
+                              if (estadoElem) estadoElem.innerHTML = 'Estado: <strong>Entregado</strong>';
+                              // Completar barra de progreso
+                              if (progressBar) progressBar.style.width = '100%';
+                              // Pequeña pausa para que el usuario vea el cambio, luego redirigir a calificar
+                              setTimeout(function(){
+                                  window.location.href = '{% url "calificar_pedido" 0 %}'.replace('/0/', '/' + data.pedido_id + '/');
+                              }, 1400);
+                          } else {
+                              document.getElementById('estado-pedido').innerHTML = 'Estado: <strong>Error al marcar pedido</strong>';
+                          }
+                      }).catch(err => {
+                          document.getElementById('estado-pedido').innerHTML = 'Estado: <strong>Error de red</strong>';
+                      });
+                }
+            }, 1000);
+        } else {
+            // Si no hay contador, refrescar cada 30s para actualizar progreso
+            setTimeout(function() { location.reload(); }, 30000);
+        }
+    })();
+</script>
+{% endblock %}

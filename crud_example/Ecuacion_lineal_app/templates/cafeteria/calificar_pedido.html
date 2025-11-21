@@ -1,0 +1,89 @@
+<!-- calificar_pedido.html -->
+{% extends 'base.html' %}
+
+{% block title %}Calificar Pedido - Cafetería{% endblock %}
+
+{% block extra_css %}
+<style>
+    .rating-stars {
+        font-size: 3rem;
+        color: #ffc107;
+        cursor: pointer;
+    }
+    
+    .rating-stars i:hover,
+    .rating-stars i.active {
+        color: #ff9800;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg">
+            <div class="card-header text-center py-4" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-bg) 100%); color: white;">
+                <h3><i class="bi bi-star-fill"></i> CALIFICAR TU PEDIDO</h3>
+            </div>
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <h5>Numero de pedido: {{ pedido.IDPedido|stringformat:"06d" }}</h5>
+                    <p>Fecha: {{ pedido.fecha|date:"d/m/Y" }}</p>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4 text-center">
+                        <label class="form-label h5">¿Cómo calificarías tu experiencia con este pedido?</label>
+                        <div class="rating-stars mt-3" id="ratingStars">
+                            <i class="bi bi-star" data-value="1"></i>
+                            <i class="bi bi-star" data-value="2"></i>
+                            <i class="bi bi-star" data-value="3"></i>
+                            <i class="bi bi-star" data-value="4"></i>
+                            <i class="bi bi-star" data-value="5"></i>
+                        </div>
+                        <input type="hidden" name="calificacion" id="calificacionInput" required>
+                        <div class="text-muted small mt-2">(Selecciona de 1 a 5 estrellas)</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Comentario (opcional):</label>
+                        {{ form.comentario }}
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-send-fill"></i> Enviar calificación
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const stars = document.querySelectorAll('#ratingStars i');
+    const input = document.getElementById('calificacionInput');
+    
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            const value = this.dataset.value;
+            input.value = value;
+            
+            stars.forEach(s => {
+                s.classList.remove('bi-star-fill', 'active');
+                s.classList.add('bi-star');
+            });
+            
+            for(let i = 0; i < value; i++) {
+                stars[i].classList.remove('bi-star');
+                stars[i].classList.add('bi-star-fill', 'active');
+            }
+        });
+    });
+</script>
+{% endblock %}

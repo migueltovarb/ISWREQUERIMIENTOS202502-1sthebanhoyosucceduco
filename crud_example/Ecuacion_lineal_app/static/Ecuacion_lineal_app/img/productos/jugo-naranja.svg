@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-label="Jugo Naranja Isométrico">
+  <defs>
+    <linearGradient id="juice" x1="0" x2="1">
+      <stop offset="0%" stop-color="#FFD27A"/>
+      <stop offset="100%" stop-color="#FF8A2D"/>
+    </linearGradient>
+    <filter id="sJ" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="100%" height="100%" fill="#fffef8"/>
+
+  <g transform="translate(180,60)">
+    <g filter="url(#sJ)">
+      <!-- Glass body skewed for isometric feel -->
+      <g transform="skewX(-18)">
+        <rect x="20" y="30" width="120" height="210" rx="18" fill="url(#juice)"/>
+        <rect x="38" y="18" width="84" height="20" rx="10" fill="#ffe8b8" opacity="0.6"/>
+      </g>
+      <!-- Straw -->
+      <rect x="140" y="30" width="8" height="70" rx="4" fill="#d14f2b" transform="skewX(-18)"/>
+    </g>
+
+    <g transform="translate(0,300)">
+      <text x="0" y="0" font-family="Segoe UI, Arial" font-size="20" fill="#6b3f2b">Jugo Naranja</text>
+    </g>
+  </g>
+</svg>

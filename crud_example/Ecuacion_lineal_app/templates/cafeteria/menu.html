@@ -1,0 +1,204 @@
+    {% extends 'base.html' %}
+    {% load static inline_svg %}
+
+{% block title %}Menú - Cafetería{% endblock %}
+
+{% block extra_css %}
+<style>
+    .categoria-btn {
+        border-radius: 25px;
+        padding: 0.5rem 1.5rem;
+        margin: 0.3rem;
+        transition: all 0.3s ease;
+    }
+    
+    .categoria-btn.active {
+        background-color: var(--primary-color);
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    .producto-card {
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .producto-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+    
+    .producto-img {
+        height: 200px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+    .producto-img svg {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        border-radius: 10px;
+    }
+    
+    .precio-badge {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+    
+    .cantidad-control {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .cantidad-control button {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        border: none;
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: bold;
+    }
+    
+    .cantidad-control input {
+        width: 50px;
+        text-align: center;
+        border: 2px solid var(--primary-color);
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2><i class="bi bi-book-fill"></i> Menú</h2>
+        <a href="{% url 'recuento_pedido' %}" class="btn btn-primary">
+            <i class="bi bi-cart-fill"></i> Ver Pedido
+        </a>
+    </div>
+</div>
+
+<!-- Búsqueda y filtros -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" name="busqueda" class="form-control" 
+                           placeholder="Buscar productos..." 
+                           value="{{ request.GET.busqueda }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel"></i> Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Categorías -->
+<div class="text-center mb-4">
+    <h5 class="mb-3">Categorías:</h5>
+    <div class="d-flex flex-wrap justify-content-center">
+        <a href="{% url 'mostrar_menu' %}" 
+           class="btn btn-outline-primary categoria-btn {% if not request.GET.categoria %}active{% endif %}">
+            <i class="bi bi-grid-fill"></i> Todas
+        </a>
+        {% for categoria in categorias %}
+            <a href="?categoria={{ categoria.IDCategoria }}" 
+               class="btn btn-outline-primary categoria-btn {% if request.GET.categoria == categoria.IDCategoria|stringformat:'s' %}active{% endif %}">
+                {{ categoria.nombre }}
+            </a>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Productos -->
+<div class="row g-4">
+    {% for producto in productos %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card producto-card">
+                {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" class="card-img-top producto-img" alt="{{ producto.nombre }}">
+                {% else %}
+                    {% with producto.nombre|slugify as prod_slug %}
+                        {% with 'Ecuacion_lineal_app/img/productos/'|add:prod_slug|add:'.svg' as prod_img %}
+                            <div class="card-img-top producto-img" aria-label="{{ producto.nombre }}">
+                                {% inline_svg prod_img %}
+                            </div>
+                        {% endwith %}
+                    {% endwith %}
+                {% endif %}
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ producto.nombre }}</h5>
+                    <p class="card-text text-muted small">{{ producto.descripcion|truncatewords:15 }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="precio-badge">${{ producto.precio|floatformat:0 }}</span>
+                        <span class="badge bg-success">
+                            {% if producto.disponible %}
+                                <i class="bi bi-check-circle"></i> Disponible
+                            {% else %}
+                                <i class="bi bi-x-circle"></i> Agotado
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    {% if producto.disponible %}
+                        <form method="post" action="{% url 'agregar_producto' producto.IDProducto %}">
+                            {% csrf_token %}
+                            <div class="cantidad-control mb-3">
+                                <button type="button" class="btn-cantidad" onclick="cambiarCantidad(this, -1)">-</button>
+                                <input type="number" name="cantidad" value="1" min="1" max="10" readonly>
+                                <button type="button" class="btn-cantidad" onclick="cambiarCantidad(this, 1)">+</button>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-plus-circle"></i> Agregar producto
+                            </button>
+                        </form>
+                    {% else %}
+                        <button class="btn btn-secondary w-100" disabled>
+                            <i class="bi bi-x-circle"></i> No disponible
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle"></i> No se encontraron productos.
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Botón para ver recomendaciones -->
+<div class="text-center mt-5">
+    <a href="{% url 'recomendaciones' %}" class="btn btn-accent btn-lg">
+        <i class="bi bi-star-fill"></i> Ver Recomendaciones
+    </a>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function cambiarCantidad(button, cambio) {
+        const input = button.parentElement.querySelector('input[name="cantidad"]');
+        let valor = parseInt(input.value) + cambio;
+        if (valor < 1) valor = 1;
+        if (valor > 10) valor = 10;
+        input.value = valor;
+    }
+</script>
+{% endblock %}

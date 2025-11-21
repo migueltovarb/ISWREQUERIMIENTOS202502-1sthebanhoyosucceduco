@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio - Cafetería{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-lg">
+            <div class="card-header text-center py-4" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-bg) 100%); color: white;">
+                <h3><i class="bi bi-cup-hot-fill"></i> CAFETERÍA</h3>
+            </div>
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <h4>¡Bienvenido!</h4>
+                </div>
+
+                {% if pedido_activo %}
+                    <div class="alert alert-info border-start border-5 border-info">
+                        <h5 class="alert-heading">
+                            <i class="bi bi-info-circle-fill"></i> 
+                            Si ya tienes un pedido en proceso:
+                        </h5>
+                        <p class="mb-0">Tienes un pedido pendiente.</p>
+                    </div>
+
+
+
+                    <div class="d-grid gap-3">
+                        <a href="{% url 'progreso_pedido' pedido_activo.IDPedido %}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-truck"></i> Ver progreso del pedido
+                        </a>
+                        <a href="{% url 'tipo_pedido' %}" class="btn btn-accent btn-lg">
+                            <i class="bi bi-plus-circle"></i> Crear pedido nuevo
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center mb-4">
+                        <p class="lead">¿Listo para hacer tu pedido?</p>
+                    </div>
+
+                    <div class="d-grid">
+                        <a href="{% url 'tipo_pedido' %}" class="btn btn-primary btn-lg py-3">
+                            <i class="bi bi-plus-circle-fill"></i> Comenzar pedido
+                        </a>
+                    </div>
+                {% endif %}
+
+                <hr class="my-4">
+
+                <div class="d-grid gap-2">
+                    <a href="{% url 'historial' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-clock-history"></i> Ver historial de pedidos
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="text-center p-3">
+                    <i class="bi bi-lightning-fill" style="font-size: 2rem; color: var(--accent-color);"></i>
+                    <h6 class="mt-2">Rápido</h6>
+                    <small class="text-muted">Pedido en minutos</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center p-3">
+                    <i class="bi bi-credit-card-fill" style="font-size: 2rem; color: var(--accent-color);"></i>
+                    <h6 class="mt-2">Seguro</h6>
+                    <small class="text-muted">Múltiples métodos de pago</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center p-3">
+                    <i class="bi bi-cup-hot-fill" style="font-size: 2rem; color: var(--accent-color);"></i>
+                    <h6 class="mt-2">Fresco</h6>
+                    <small class="text-muted">Productos de calidad</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% comment %} El contador fue movido a la página de progreso del pedido {% endcomment %}

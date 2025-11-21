@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}Modificar Pedido - Cafetería{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cantidad-control {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-cantidad {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        border: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-aumentar {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .btn-disminuir {
+        background-color: #ffc107;
+        color: white;
+    }
+    
+    .btn-cantidad:hover {
+        transform: scale(1.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-lg">
+            <div class="card-header text-center py-4" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-bg) 100%); color: white;">
+                <h3><i class="bi bi-pencil-square"></i> Modificar Pedido</h3>
+            </div>
+            <div class="card-body p-4">
+                {% if items %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="text-center">Cantidad</th>
+                                    <th class="text-end">Precio Unitario</th>
+                                    <th class="text-end">Subtotal</th>
+                                    <th class="text-center">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if item.producto.imagen %}
+                                                    <img src="{{ item.producto.imagen.url }}" 
+                                                         style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;" 
+                                                         class="me-3" 
+                                                         alt="{{ item.producto.nombre }}">
+                                                {% else %}
+                                                    <div style="width: 60px; height: 60px; border-radius: 8px;" 
+                                                         class="bg-secondary d-flex align-items-center justify-content-center me-3">
+                                                        <i class="bi bi-cup-hot-fill text-white"></i>
+                                                    </div>
+                                                {% endif %}
+                                                <div>
+                                                    <h6 class="mb-0">{{ item.producto.nombre }}</h6>
+                                                    <small class="text-muted">{{ item.producto.categoria.nombre }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center align-middle">
+                                            <form method="post" class="cantidad-control">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="item_id" value="{{ item.id }}">
+                                                
+                                                <button type="submit" 
+                                                        name="accion" 
+                                                        value="disminuir" 
+                                                        class="btn btn-cantidad btn-disminuir">
+                                                    <i class="bi bi-dash"></i>
+                                                </button>
+                                                
+                                                <span class="badge bg-primary px-3 py-2" style="font-size: 1.1rem;">
+                                                    {{ item.cantidad }}
+                                                </span>
+                                                
+                                                <button type="submit" 
+                                                        name="accion" 
+                                                        value="aumentar" 
+                                                        class="btn btn-cantidad btn-aumentar">
+                                                    <i class="bi bi-plus"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                        <td class="text-end align-middle">
+                                            ${{ item.producto.precio|floatformat:0 }}
+                                        </td>
+                                        <td class="text-end align-middle">
+                                            <strong style="font-size: 1.1rem;">${{ item.subtotal|floatformat:0 }}</strong>
+                                        </td>
+                                        <td class="text-center align-middle">
+                                            <form method="post" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="item_id" value="{{ item.id }}">
+                                                <button type="submit" 
+                                                        name="accion" 
+                                                        value="eliminar" 
+                                                        class="btn btn-danger btn-sm"
+                                                        onclick="return confirm('¿Eliminar este producto?')">
+                                                    <i class="bi bi-trash"></i> Eliminar
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Total a Pagar</strong></td>
+                                    <td class="text-end">
+                                        <h4 class="mb-0 text-primary">${{ pedido.total|floatformat:0 }}</h4>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <a href="{% url 'mostrar_menu' %}" class="btn btn-outline-primary btn-lg w-100">
+                                <i class="bi bi-plus-circle"></i> Regresar al menú
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{% url 'recuento_pedido' %}" class="btn btn-primary btn-lg w-100">
+                                <i class="bi bi-arrow-right-circle"></i> Seguir con el pedido
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning text-center">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <h5 class="mt-2">No hay productos en el pedido</h5>
+                        <p>Agrega al menos un producto para continuar.</p>
+                        <a href="{% url 'mostrar_menu' %}" class="btn btn-primary mt-3">
+                            <i class="bi bi-book"></i> Ver Menú
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

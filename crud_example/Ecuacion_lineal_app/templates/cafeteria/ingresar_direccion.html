@@ -1,0 +1,75 @@
+<!-- ingresar_direccion.html -->
+{% extends 'base.html' %}
+
+{% block title %}Dirección de Entrega - Cafetería{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-lg">
+            <div class="card-header text-center py-4" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-bg) 100%); color: white;">
+                <h3><i class="bi bi-geo-alt-fill"></i> Tipo de pedido seleccionado</h3>
+                <h4>A DOMICILIO</h4>
+            </div>
+            <div class="card-body p-4">
+                <h5 class="mb-4">Dirección exacta:</h5>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-pin-map-fill"></i> {{ form.direccion.label }}
+                        </label>
+                        {{ form.direccion }}
+                        {% if form.direccion.errors %}
+                            <div class="text-danger small">{{ form.direccion.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-building"></i> {{ form.barrio.label }}
+                        </label>
+                        {{ form.barrio }}
+                        {% if form.barrio.errors %}
+                            <div class="text-danger small">{{ form.barrio.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-telephone-fill"></i> {{ form.telefono.label }}
+                        </label>
+                        {{ form.telefono }}
+                        {% if form.telefono.errors %}
+                            <div class="text-danger small">{{ form.telefono.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-info-circle"></i> {{ form.indicaciones.label }}
+                        </label>
+                        {{ form.indicaciones }}
+                        {% if form.indicaciones.errors %}
+                            <div class="text-danger small">{{ form.indicaciones.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-clock"></i> 
+                        <strong>Entrega estimada:</strong> 20-30 minutos (sin costo de envío)
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle"></i> Continuar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
